@@ -4,7 +4,7 @@ Local markdown knowledgebase and agent instructions to generate tailored resumes
 
 ## How it works
 
-You maintain a vault of markdown files (profile, experience, case studies, templates, writing guidelines). An AI CLI agent reads those files plus a job post and generates tailored application documents. No backend or database required for V1.
+You maintain a vault of markdown files (profile, experience, case studies, templates, writing guidelines). An AI CLI agent reads those files plus a job post and generates tailored application documents. No backend or database required.
 
 ```
 You provide a job post
@@ -60,14 +60,6 @@ The vault itself is created by you during onboarding. It is git-ignored by defau
 ## Privacy
 
 Your vault stays local. The `.gitignore` excludes `Vault/` so personal data is never committed. If your vault lives outside this repo, no action needed.
-
-## V2 (planned)
-
-A job application tracking dashboard built with Next.js and Supabase, inspired by [HireProgress](https://hireprogress.com). Features will include:
-- Kanban board for tracking application stages (Applied, Interview, Offer, Rejected, Done)
-- Email inbox connected to a dedicated job-application email via Gmail API
-- Auto-tracking: incoming recruiter emails update application status
-- V1 integration: generated documents auto-create tracked applications with attachments
 
 ## License
 
