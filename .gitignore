@@ -1,0 +1,27 @@
+# Vault (contains personal data)
+Vault/
+
+# Node / Dashboard (V2)
+node_modules/
+.next/
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cursor project files
+.cursor/
