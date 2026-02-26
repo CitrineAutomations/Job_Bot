@@ -1,12 +1,11 @@
 # Vault (contains personal data)
 Vault/
 
-# Node / Dashboard (V2)
-node_modules/
-.next/
-.env
-.env.local
-.env.*.local
+# Dashboard
+dashboard/node_modules/
+dashboard/.next/
+dashboard/.env.local
+dashboard/.env.*.local
 
 # OS files
 .DS_Store
