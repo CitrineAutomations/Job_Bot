@@ -185,6 +185,69 @@ When user provides a job post:
 3. Generate requested assets into `Vault/06-Generated/`
 4. Provide final outputs in the chat, plus the file paths created
 
+## Company enrichment (optional, before cover letter)
+
+When generating a cover letter or proposal, enrich the company first to personalize the output. Use your available tools (browser, fetch) to gather context. No separate API required.
+
+**Sources, in order:**
+1. **Official company website** -- About, mission, products, team, culture. Visit the company URL from the job post.
+2. **Company LinkedIn page** -- Company description, recent posts, employee count, industry.
+3. **Google search for news** -- Search "[company name] news". Prioritize high-authority sources (Reuters, WSJ, Bloomberg, TechCrunch, industry trade press). Avoid gossip, Twitter, forums.
+
+**Use enrichment to:**
+- Open with a specific reference to the company (product, mission, recent news)
+- Align your pitch to their stated goals or culture
+- Avoid generic "I'm excited about this opportunity" filler
+
+If the dashboard is running and has stored enrichment for this company, you can load it from there. Otherwise, fetch it in this session and summarize for the user.
+
+## Contact discovery (optional)
+
+When possible, find the hiring manager or job poster for personalization and follow-up.
+
+**Where to look:**
+- Job posting: "Posted by", "Hiring manager", recruiter name
+- Company LinkedIn: People, leadership, recruiters
+- Company website: Team, About
+
+**Store:** Name, role/title, LinkedIn URL, source. If the dashboard is running, add to the company's Contacts. Otherwise, include in your summary.
+
+**Use in cover letter:** When you have a name, address the letter to them ("Dear [Name]") instead of "Dear Hiring Manager".
+
+## Dashboard integration (when available)
+
+If the Job Bot dashboard is running, after generating documents call the tracking API to create a tracked application:
+
+**Endpoint:** `POST <dashboard_url>/api/applications`
+
+**Body (JSON):**
+```json
+{
+  "company": "Company Name",
+  "role": "Job Title",
+  "source": "upwork",
+  "job_post_slug": "acme-senior-dev",
+  "job_post_url": "https://...",
+  "documents": [
+    {
+      "type": "resume",
+      "file_name": "2025-02-25-acme-senior-dev-resume.md",
+      "content": "<full file content>"
+    },
+    {
+      "type": "cover_letter",
+      "file_name": "2025-02-25-acme-senior-dev-cover-letter.md",
+      "content": "<full file content>"
+    }
+  ]
+}
+```
+
+- `company` and `role` are required. `source` can be upwork, linkedin, indeed, direct, or other.
+- `documents`: For each generated file, read its content and include `type` (resume, cover_letter, or proposal), `file_name`, and `content`.
+- This creates a tracked application on the Kanban board with attached documents.
+- Enrichment and contacts can be stored in the company's CRM for reuse across applications.
+
 ## Quality checks before finalizing
 - Does each claim have a supporting project or experience file?
 - Does the proposal address the specific requirements in the post?

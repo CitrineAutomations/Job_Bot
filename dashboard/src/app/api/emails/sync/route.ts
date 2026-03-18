@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { getGmailClient } from "@/lib/gmail"
-import { createClient } from "@/lib/supabase"
+import { prisma } from "@/lib/db"
 
 const SETTINGS_ID = "00000000-0000-0000-0000-000000000001"
 
@@ -21,14 +21,12 @@ function parseEmail(header: string | null): string | null {
 }
 
 export async function POST() {
-  const supabase = createClient()
-  const { data: settings } = await supabase
-    .from("settings")
-    .select("gmail_refresh_token")
-    .eq("id", SETTINGS_ID)
-    .single()
+  const settings = await prisma.settings.findUnique({
+    where: { id: SETTINGS_ID },
+    select: { gmailRefreshToken: true },
+  })
 
-  if (!settings?.gmail_refresh_token) {
+  if (!settings?.gmailRefreshToken) {
     return NextResponse.json(
       {
         error: "Gmail not connected. Connect your Gmail account first.",
@@ -38,7 +36,7 @@ export async function POST() {
   }
 
   try {
-    const gmail = await getGmailClient(settings.gmail_refresh_token)
+    const gmail = await getGmailClient(settings.gmailRefreshToken)
     const listRes = await gmail.users.messages.list({
       userId: "me",
       maxResults: 50,
@@ -92,29 +90,33 @@ export async function POST() {
 
       const internalDate = fullMsg.data.internalDate
       const receivedAt = internalDate
-        ? new Date(parseInt(internalDate, 10)).toISOString()
+        ? new Date(parseInt(internalDate, 10))
         : null
 
-      const { error: upsertError } = await supabase.from("emails").upsert(
-        {
-          gmail_message_id: id,
-          thread_id: threadId,
-          from_address: from,
-          to_address: to,
+      await prisma.email.upsert({
+        where: { gmailMessageId: id },
+        create: {
+          gmailMessageId: id,
+          threadId,
+          fromAddress: from ?? "",
+          toAddress: to,
           subject,
-          body_text: bodyText || null,
-          body_html: bodyHtml || null,
+          bodyText: bodyText || null,
+          bodyHtml: bodyHtml || null,
           direction: "inbound",
-          received_at: receivedAt,
-          application_id: null,
+          receivedAt,
         },
-        {
-          onConflict: "gmail_message_id",
-          ignoreDuplicates: false,
-        }
-      )
-
-      if (!upsertError) synced++
+        update: {
+          threadId,
+          fromAddress: from ?? "",
+          toAddress: to,
+          subject,
+          bodyText: bodyText || null,
+          bodyHtml: bodyHtml || null,
+          receivedAt,
+        },
+      })
+      synced++
     }
 
     return NextResponse.json({
