@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -124,12 +124,30 @@ model Application {
   company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   documents     ApplicationDocument[]
   emails        Email[]
+  tasks         Task[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([companyId])
   @@index([status])
+}
+
+model Task {
+  id            String       @id @default(uuid())
+  title         String
+  notes         String?
+  dueDate       DateTime?
+  done          Boolean      @default(false)
+  completedAt   DateTime?
+  applicationId String?
+  application   Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([applicationId])
+  @@index([done, dueDate])
 }
 
 model ApplicationDocument {

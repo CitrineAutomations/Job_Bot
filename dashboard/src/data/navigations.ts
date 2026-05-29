@@ -15,6 +15,11 @@ export const navigationsData: NavigationType[] = [
         iconName: "Briefcase",
       },
       {
+        title: "Tasks",
+        href: "/tasks",
+        iconName: "ListChecks",
+      },
+      {
         title: "Inbox",
         href: "/inbox",
         iconName: "AtSign",

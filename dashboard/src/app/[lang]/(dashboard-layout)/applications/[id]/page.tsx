@@ -8,9 +8,10 @@ import { prisma } from "@/lib/db"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { ContactsSection } from "@/components/contacts/contacts-section"
 import { ApplicationDetailClient } from "./_components/application-detail-client"
 import { DeleteApplicationButton } from "./_components/delete-application-button"
+import { ContactsSection } from "@/components/contacts/contacts-section"
+import { TasksSection } from "@/components/tasks/tasks-section"
 
 export const metadata: Metadata = {
   title: "Application Detail",
@@ -121,6 +122,12 @@ export default async function ApplicationDetailPage({
       <Card>
         <CardContent className="pt-6">
           <ContactsSection companyId={application.companyId} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="pt-6">
+          <TasksSection applicationId={application.id} />
         </CardContent>
       </Card>
     </div>
