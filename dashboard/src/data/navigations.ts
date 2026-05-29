@@ -21,7 +21,7 @@ export const navigationsData: NavigationType[] = [
       },
       {
         title: "Companies",
-        href: "/dashboards/crm",
+        href: "/companies",
         iconName: "Building2",
       },
     ],
