@@ -20,51 +20,17 @@ const nextConfig = {
         destination: "/docs/overview/introduction",
         permanent: true,
       },
-      // Redirect root locale paths (/en, /ar) to home when authenticated.
-      // Use explicit paths so /applications etc. are not matched as ":lang".
+      // Auth was removed, so locale roots redirect straight to the home page.
+      // Explicit /en and /ar paths so /applications etc. are not matched as ":lang".
       {
         source: "/en",
-        destination: process.env.HOME_PATHNAME || "/en/applications",
-        permanent: true,
-        has: [
-          {
-            type: "cookie",
-            key: "next-auth.session-token",
-          },
-        ],
+        destination: "/en/applications",
+        permanent: false,
       },
       {
         source: "/ar",
-        destination: process.env.HOME_PATHNAME || "/ar/applications",
-        permanent: true,
-        has: [
-          {
-            type: "cookie",
-            key: "next-auth.session-token",
-          },
-        ],
-      },
-      {
-        source: "/en",
-        destination: process.env.HOME_PATHNAME || "/en/applications",
-        permanent: true,
-        has: [
-          {
-            type: "cookie",
-            key: "__Secure-next-auth.session-token",
-          },
-        ],
-      },
-      {
-        source: "/ar",
-        destination: process.env.HOME_PATHNAME || "/ar/applications",
-        permanent: true,
-        has: [
-          {
-            type: "cookie",
-            key: "__Secure-next-auth.session-token",
-          },
-        ],
+        destination: "/ar/applications",
+        permanent: false,
       },
       {
         source: "/:lang/apps/email",
