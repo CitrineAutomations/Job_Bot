@@ -2,6 +2,23 @@ import { NextResponse } from "next/server"
 
 import { prisma } from "@/lib/db"
 
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    await prisma.application.delete({ where: { id } })
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    console.error("Delete application error:", err)
+    return NextResponse.json(
+      { error: "Failed to delete application" },
+      { status: 500 }
+    )
+  }
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

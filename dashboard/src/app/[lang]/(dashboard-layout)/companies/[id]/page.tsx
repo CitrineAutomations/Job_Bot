@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ContactsSection } from "@/components/contacts/contacts-section"
+import { DeleteCompanyButton } from "./_components/delete-company-button"
 
 export const metadata: Metadata = {
   title: "Company Detail",
@@ -60,13 +61,17 @@ export default async function CompanyDetailPage({
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-semibold">{company.name}</h1>
           <p className="text-muted-foreground">
             {company.applications.length}{" "}
             {company.applications.length === 1 ? "application" : "applications"}
           </p>
         </div>
+        <DeleteCompanyButton
+          companyId={company.id}
+          applicationCount={company.applications.length}
+        />
       </div>
 
       <Card>

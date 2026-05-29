@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ContactsSection } from "@/components/contacts/contacts-section"
 import { ApplicationDetailClient } from "./_components/application-detail-client"
+import { DeleteApplicationButton } from "./_components/delete-application-button"
 
 export const metadata: Metadata = {
   title: "Application Detail",
@@ -52,10 +53,11 @@ export default async function ApplicationDetailPage({
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-semibold">{companyName}</h1>
           <p className="text-muted-foreground">{application.role}</p>
         </div>
+        <DeleteApplicationButton applicationId={application.id} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
