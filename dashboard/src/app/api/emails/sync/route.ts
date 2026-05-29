@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { getGmailClient } from "@/lib/gmail"
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 const SETTINGS_ID = "00000000-0000-0000-0000-000000000001"
 
@@ -21,10 +21,11 @@ function parseEmail(header: string | null): string | null {
 }
 
 export async function POST() {
-  const settings = await prisma.settings.findUnique({
-    where: { id: SETTINGS_ID },
-    select: { gmailRefreshToken: true },
-  })
+  const { data: settings } = await supabase
+    .from("Settings")
+    .select("gmailRefreshToken")
+    .eq("id", SETTINGS_ID)
+    .maybeSingle()
 
   if (!settings?.gmailRefreshToken) {
     return NextResponse.json(
@@ -90,12 +91,11 @@ export async function POST() {
 
       const internalDate = fullMsg.data.internalDate
       const receivedAt = internalDate
-        ? new Date(parseInt(internalDate, 10))
+        ? new Date(parseInt(internalDate, 10)).toISOString()
         : null
 
-      await prisma.email.upsert({
-        where: { gmailMessageId: id },
-        create: {
+      const { error } = await supabase.from("Email").upsert(
+        {
           gmailMessageId: id,
           threadId,
           fromAddress: from ?? "",
@@ -106,16 +106,9 @@ export async function POST() {
           direction: "inbound",
           receivedAt,
         },
-        update: {
-          threadId,
-          fromAddress: from ?? "",
-          toAddress: to,
-          subject,
-          bodyText: bodyText || null,
-          bodyHtml: bodyHtml || null,
-          receivedAt,
-        },
-      })
+        { onConflict: "gmailMessageId" }
+      )
+      if (error) throw error
       synced++
     }
 

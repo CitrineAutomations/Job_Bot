@@ -1,27 +1,25 @@
 import { NextResponse } from "next/server"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const applicationId = searchParams.get("applicationId")
 
-    const tasks = await prisma.task.findMany({
-      where: applicationId ? { applicationId } : undefined,
-      include: {
-        application: {
-          select: { role: true, company: { select: { name: true } } },
-        },
-      },
-      orderBy: [
-        { done: "asc" },
-        { dueDate: { sort: "asc", nulls: "last" } },
-        { createdAt: "asc" },
-      ],
-    })
+    let query = supabase
+      .from("Task")
+      .select("*, application:Application(role, company:Company(name))")
+      .order("done", { ascending: true })
+      .order("dueDate", { ascending: true, nullsFirst: false })
+      .order("createdAt", { ascending: true })
 
-    return NextResponse.json(tasks)
+    if (applicationId) query = query.eq("applicationId", applicationId)
+
+    const { data, error } = await query
+    if (error) throw error
+
+    return NextResponse.json(data ?? [])
   } catch (err) {
     console.error("List tasks error:", err)
     return NextResponse.json({ error: "Failed to list tasks" }, { status: 500 })
@@ -42,16 +40,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "title is required" }, { status: 400 })
     }
 
-    const task = await prisma.task.create({
-      data: {
+    const { data, error } = await supabase
+      .from("Task")
+      .insert({
         title: title.trim(),
         notes: notes?.trim() || null,
-        dueDate: dueDate ? new Date(dueDate) : null,
+        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         applicationId: applicationId || null,
-      },
-    })
+      })
+      .select()
+      .single()
+    if (error) throw error
 
-    return NextResponse.json(task, { status: 201 })
+    return NextResponse.json(data, { status: 201 })
   } catch (err) {
     console.error("Create task error:", err)
     return NextResponse.json(

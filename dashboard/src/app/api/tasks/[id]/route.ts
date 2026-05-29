@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 export async function PATCH(
   request: Request,
@@ -24,25 +24,31 @@ export async function PATCH(
       )
     }
 
-    const task = await prisma.task.update({
-      where: { id },
-      data: {
-        ...(title !== undefined && { title: title.trim() }),
-        ...(notes !== undefined && { notes: notes?.trim() || null }),
-        ...(dueDate !== undefined && {
-          dueDate: dueDate ? new Date(dueDate) : null,
-        }),
-        ...(applicationId !== undefined && {
-          applicationId: applicationId || null,
-        }),
-        ...(done !== undefined && {
-          done,
-          completedAt: done ? new Date() : null,
-        }),
-      },
-    })
+    const updates: Record<string, unknown> = {}
+    if (title !== undefined) updates.title = title.trim()
+    if (notes !== undefined) updates.notes = notes?.trim() || null
+    if (dueDate !== undefined)
+      updates.dueDate = dueDate ? new Date(dueDate).toISOString() : null
+    if (applicationId !== undefined)
+      updates.applicationId = applicationId || null
+    if (done !== undefined) {
+      updates.done = done
+      updates.completedAt = done ? new Date().toISOString() : null
+    }
 
-    return NextResponse.json(task)
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ ok: true })
+    }
+
+    const { data, error } = await supabase
+      .from("Task")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single()
+    if (error) throw error
+
+    return NextResponse.json(data)
   } catch (err) {
     console.error("Update task error:", err)
     return NextResponse.json(
@@ -58,7 +64,8 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    await prisma.task.delete({ where: { id } })
+    const { error } = await supabase.from("Task").delete().eq("id", id)
+    if (error) throw error
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error("Delete task error:", err)

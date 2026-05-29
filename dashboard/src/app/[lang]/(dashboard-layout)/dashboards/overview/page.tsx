@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 import { ApplicationFunnel } from "./_components/application-funnel"
 import { FollowUpReminders } from "./_components/follow-up-reminders"
@@ -11,32 +11,44 @@ export const metadata: Metadata = {
   title: "Job Search Overview",
 }
 
+type OverviewAppRow = {
+  id: string
+  status: string
+  role: string
+  appliedDate: string | null
+  lastActivity: string | null
+  updatedAt: string | null
+  company: { name: string } | null
+}
+
+type FollowUpRow = {
+  id: string
+  role: string
+  followUpDate: string | null
+  company: { name: string } | null
+}
+
 async function getDashboardData() {
-  const [applications, followUps] = await Promise.all([
-    prisma.application.findMany({
-      select: {
-        id: true,
-        status: true,
-        role: true,
-        appliedDate: true,
-        lastActivity: true,
-        updatedAt: true,
-        company: { select: { name: true } },
-      },
-      orderBy: { updatedAt: "desc" },
-    }),
-    prisma.application.findMany({
-      where: { followUpDate: { not: null } },
-      select: {
-        id: true,
-        role: true,
-        followUpDate: true,
-        company: { select: { name: true } },
-      },
-      orderBy: { followUpDate: "asc" },
-      take: 10,
-    }),
-  ])
+  const [{ data: applicationsData }, { data: followUpsData }] =
+    await Promise.all([
+      supabase
+        .from("Application")
+        .select(
+          "id, status, role, appliedDate, lastActivity, updatedAt, company:Company(name)"
+        )
+        .order("updatedAt", { ascending: false })
+        .returns<OverviewAppRow[]>(),
+      supabase
+        .from("Application")
+        .select("id, role, followUpDate, company:Company(name)")
+        .not("followUpDate", "is", null)
+        .order("followUpDate", { ascending: true })
+        .limit(10)
+        .returns<FollowUpRow[]>(),
+    ])
+
+  const applications = applicationsData ?? []
+  const followUps = followUpsData ?? []
 
   const total = applications.length
   const saved = applications.filter((a) => a.status === "saved").length
@@ -48,7 +60,8 @@ async function getDashboardData() {
 
   const submitted = total - saved
   const responded = interview + offer + rejected + done
-  const responseRate = submitted > 0 ? Math.round((responded / submitted) * 100) : 0
+  const responseRate =
+    submitted > 0 ? Math.round((responded / submitted) * 100) : 0
 
   let avgDaysToResponse = 0
   const withResponse = applications.filter(
@@ -57,12 +70,12 @@ async function getDashboardData() {
       a.status !== "saved" &&
       a.appliedDate &&
       a.lastActivity &&
-      a.lastActivity.getTime() !== a.appliedDate.getTime()
+      new Date(a.lastActivity).getTime() !== new Date(a.appliedDate).getTime()
   )
   if (withResponse.length > 0) {
     const totalDays = withResponse.reduce((sum, a) => {
-      const appliedTime = a.appliedDate!.getTime()
-      const activityTime = a.lastActivity!.getTime()
+      const appliedTime = new Date(a.appliedDate!).getTime()
+      const activityTime = new Date(a.lastActivity!).getTime()
       return sum + (activityTime - appliedTime) / (1000 * 60 * 60 * 24)
     }, 0)
     avgDaysToResponse = Math.round(totalDays / withResponse.length)
@@ -80,7 +93,7 @@ async function getDashboardData() {
   const recentActivity = applications.slice(0, 10).map((a) => ({
     id: a.id,
     type: "status" as const,
-    title: `${a.company.name} - ${a.role}`,
+    title: `${a.company?.name ?? ""} - ${a.role}`,
     description: `Status: ${a.status}`,
     date: String(a.updatedAt ?? a.lastActivity ?? a.appliedDate ?? ""),
   }))
@@ -88,8 +101,8 @@ async function getDashboardData() {
   const normalizedFollowUps = followUps.map((f) => ({
     id: f.id,
     role: f.role,
-    follow_up_date: f.followUpDate?.toISOString() ?? null,
-    companies: { name: f.company.name },
+    follow_up_date: f.followUpDate ?? null,
+    companies: { name: f.company?.name ?? "" },
   }))
 
   return {

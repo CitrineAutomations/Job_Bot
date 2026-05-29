@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 export async function PATCH(
   request: Request,
@@ -17,20 +17,23 @@ export async function PATCH(
       notes?: string
     }
 
-    const contact = await prisma.companyContact.update({
-      where: { id },
-      data: {
-        ...(name !== undefined && { name: name.trim() }),
-        ...(roleTitle !== undefined && { roleTitle: roleTitle.trim() || null }),
-        ...(linkedinUrl !== undefined && {
-          linkedinUrl: linkedinUrl.trim() || null,
-        }),
-        ...(email !== undefined && { email: email.trim() || null }),
-        ...(notes !== undefined && { notes: notes.trim() || null }),
-      },
-    })
+    const updates: Record<string, unknown> = {}
+    if (name !== undefined) updates.name = name.trim()
+    if (roleTitle !== undefined) updates.roleTitle = roleTitle.trim() || null
+    if (linkedinUrl !== undefined)
+      updates.linkedinUrl = linkedinUrl.trim() || null
+    if (email !== undefined) updates.email = email.trim() || null
+    if (notes !== undefined) updates.notes = notes.trim() || null
 
-    return NextResponse.json(contact)
+    const { data, error } = await supabase
+      .from("CompanyContact")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single()
+    if (error) throw error
+
+    return NextResponse.json(data)
   } catch (err) {
     console.error("Update contact error:", err)
     return NextResponse.json(
@@ -46,7 +49,11 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    await prisma.companyContact.delete({ where: { id } })
+    const { error } = await supabase
+      .from("CompanyContact")
+      .delete()
+      .eq("id", id)
+    if (error) throw error
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error("Delete contact error:", err)

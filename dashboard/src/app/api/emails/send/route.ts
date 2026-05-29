@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { getGmailClient } from "@/lib/gmail"
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 const SETTINGS_ID = "00000000-0000-0000-0000-000000000001"
 
@@ -17,10 +17,11 @@ export async function POST(request: Request) {
       )
     }
 
-    const settings = await prisma.settings.findUnique({
-      where: { id: SETTINGS_ID },
-      select: { gmailRefreshToken: true },
-    })
+    const { data: settings } = await supabase
+      .from("Settings")
+      .select("gmailRefreshToken")
+      .eq("id", SETTINGS_ID)
+      .maybeSingle()
 
     if (!settings?.gmailRefreshToken) {
       return NextResponse.json(
@@ -43,10 +44,11 @@ export async function POST(request: Request) {
 
     const gmail = await getGmailClient(settings.gmailRefreshToken)
 
-    const emailRow = await prisma.email.findUnique({
-      where: { id: emailId },
-      select: { subject: true },
-    })
+    const { data: emailRow } = await supabase
+      .from("Email")
+      .select("subject")
+      .eq("id", emailId)
+      .maybeSingle()
 
     const subject = emailRow?.subject
       ? `Re: ${emailRow.subject.replace(/^Re:\s*/i, "")}`
@@ -75,17 +77,16 @@ export async function POST(request: Request) {
       },
     })
 
-    await prisma.email.create({
-      data: {
-        gmailMessageId: `out-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        fromAddress: "",
-        toAddress,
-        subject,
-        bodyText: replyBody,
-        direction: "outbound",
-        receivedAt: new Date(),
-      },
+    const { error } = await supabase.from("Email").insert({
+      gmailMessageId: `out-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      fromAddress: "",
+      toAddress,
+      subject,
+      bodyText: replyBody,
+      direction: "outbound",
+      receivedAt: new Date().toISOString(),
     })
+    if (error) throw error
 
     return NextResponse.json({ success: true })
   } catch (err) {

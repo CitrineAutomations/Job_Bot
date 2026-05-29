@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 import { InboxClient } from "./_components/inbox-client"
 
@@ -10,43 +10,44 @@ export const metadata: Metadata = {
 
 const SETTINGS_ID = "00000000-0000-0000-0000-000000000001"
 
+type EmailRow = {
+  id: string
+  fromAddress: string
+  subject: string
+  bodyText: string | null
+  bodyHtml: string | null
+  direction: string
+  receivedAt: string | null
+  isRead: boolean
+  applicationId: string | null
+  threadId: string | null
+  application: { role: string; company: { name: string } | null } | null
+}
+
 async function getEmails() {
-  const emails = await prisma.email.findMany({
-    select: {
-      id: true,
-      fromAddress: true,
-      subject: true,
-      bodyText: true,
-      bodyHtml: true,
-      direction: true,
-      receivedAt: true,
-      isRead: true,
-      applicationId: true,
-      threadId: true,
-      application: {
-        select: {
-          company: { select: { name: true } },
-          role: true,
-        },
-      },
-    },
-    orderBy: { receivedAt: "desc" },
-    take: 100,
-  })
-  return emails.map((e) => ({
+  const { data } = await supabase
+    .from("Email")
+    .select(
+      "id, fromAddress, subject, bodyText, bodyHtml, direction, receivedAt, isRead, applicationId, threadId, application:Application(role, company:Company(name))"
+    )
+    .order("receivedAt", { ascending: false })
+    .limit(100)
+    .returns<EmailRow[]>()
+
+  return (data ?? []).map((e) => ({
     id: e.id,
     from_address: e.fromAddress,
     subject: e.subject,
     body_text: e.bodyText,
     body_html: e.bodyHtml,
     direction: e.direction,
-    received_at: e.receivedAt?.toISOString() ?? null,
+    received_at: e.receivedAt ?? null,
     is_read: e.isRead,
     application_id: e.applicationId,
     thread_id: e.threadId,
     applications: e.application
       ? {
-          companies: { name: e.application.company.name },
+          companies: { name: e.application.company?.name ?? "" },
           role: e.application.role,
         }
       : null,
@@ -54,10 +55,11 @@ async function getEmails() {
 }
 
 async function getGmailConnected() {
-  const settings = await prisma.settings.findUnique({
-    where: { id: SETTINGS_ID },
-    select: { gmailRefreshToken: true },
-  })
+  const { data: settings } = await supabase
+    .from("Settings")
+    .select("gmailRefreshToken")
+    .eq("id", SETTINGS_ID)
+    .maybeSingle()
   return !!settings?.gmailRefreshToken
 }
 

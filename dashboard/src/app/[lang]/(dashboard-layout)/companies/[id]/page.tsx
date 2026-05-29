@@ -3,13 +3,13 @@ import { ArrowLeft, Briefcase } from "lucide-react"
 
 import type { Metadata } from "next"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { ContactsSection } from "@/components/contacts/contacts-section"
 import { DeleteCompanyButton } from "./_components/delete-company-button"
+import { ContactsSection } from "@/components/contacts/contacts-section"
 
 export const metadata: Metadata = {
   title: "Company Detail",
@@ -23,21 +23,20 @@ export default async function CompanyDetailPage({
 }) {
   const { id } = await params
 
-  const company = await prisma.company.findUnique({
-    where: { id },
-    include: {
-      applications: {
-        orderBy: { updatedAt: "desc" },
-        select: {
-          id: true,
-          role: true,
-          status: true,
-          source: true,
-          appliedDate: true,
-        },
-      },
-    },
-  })
+  const { data: company } = await supabase
+    .from("Company")
+    .select(
+      "id, name, applications:Application(id, role, status, source, appliedDate, updatedAt)"
+    )
+    .eq("id", id)
+    .maybeSingle()
+
+  if (company?.applications) {
+    company.applications.sort(
+      (a: { updatedAt: string }, b: { updatedAt: string }) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    )
+  }
 
   if (!company) {
     return (
@@ -98,7 +97,7 @@ export default async function CompanyDetailPage({
                     <p className="font-medium leading-tight">{app.role}</p>
                     <p className="text-xs text-muted-foreground">
                       {app.appliedDate
-                        ? `Applied ${app.appliedDate.toLocaleDateString()}`
+                        ? `Applied ${new Date(app.appliedDate).toLocaleDateString()}`
                         : "Not yet applied"}
                       {app.source && ` · ${app.source}`}
                     </p>

@@ -13,9 +13,7 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "format": "prettier --ignore-path .gitignore --write .",
-    "migrate": "prisma migrate dev",
-    "db:push": "prisma db push"
+    "format": "prettier --ignore-path .gitignore --write ."
   },
   "engines": {
     "node": ">=22",
@@ -65,6 +63,7 @@
     "@radix-ui/react-toggle": "1.1.0",
     "@radix-ui/react-toggle-group": "1.1.0",
     "@radix-ui/react-tooltip": "1.1.5",
+    "@supabase/supabase-js": "^2.106.2",
     "@tanstack/react-table": "8.20.5",
     "@tiptap/extension-bubble-menu": "2.11.2",
     "@tiptap/extension-color": "2.9.1",
@@ -89,8 +88,6 @@
     "negotiator": "0.6.3",
     "next": "15.2.8",
     "next-auth": "4.24.11",
-    "@prisma/client": "^6.0.0",
-    "prisma": "^6.0.0",
     "react": "19.1.3",
     "react-day-picker": "9.6.4",
     "react-dom": "19.1.3",

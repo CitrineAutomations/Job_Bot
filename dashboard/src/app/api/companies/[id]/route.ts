@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 export async function DELETE(
   _request: Request,
@@ -8,7 +8,8 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    await prisma.company.delete({ where: { id } })
+    const { error } = await supabase.from("Company").delete().eq("id", id)
+    if (error) throw error
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error("Delete company error:", err)

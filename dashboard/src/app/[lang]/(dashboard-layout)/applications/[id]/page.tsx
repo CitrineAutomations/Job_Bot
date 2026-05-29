@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react"
 
 import type { Metadata } from "next"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -25,10 +25,11 @@ export default async function ApplicationDetailPage({
 }) {
   const { id } = await params
 
-  const application = await prisma.application.findUnique({
-    where: { id },
-    include: { company: true },
-  })
+  const { data: application } = await supabase
+    .from("Application")
+    .select("*, company:Company(*)")
+    .eq("id", id)
+    .maybeSingle()
 
   if (!application) {
     return (
@@ -74,7 +75,7 @@ export default async function ApplicationDetailPage({
               <p className="text-sm text-muted-foreground">Applied</p>
               <p>
                 {application.appliedDate
-                  ? application.appliedDate.toLocaleDateString()
+                  ? new Date(application.appliedDate).toLocaleDateString()
                   : "—"}
               </p>
             </div>
@@ -100,7 +101,7 @@ export default async function ApplicationDetailPage({
             {application.followUpDate && (
               <div>
                 <p className="text-sm text-muted-foreground">Follow-up</p>
-                <p>{application.followUpDate.toLocaleDateString()}</p>
+                <p>{new Date(application.followUpDate).toLocaleDateString()}</p>
               </div>
             )}
           </CardContent>

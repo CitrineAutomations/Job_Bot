@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 export async function DELETE(
   _request: Request,
@@ -8,7 +8,8 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    await prisma.application.delete({ where: { id } })
+    const { error } = await supabase.from("Application").delete().eq("id", id)
+    if (error) throw error
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error("Delete application error:", err)
@@ -28,25 +29,25 @@ export async function PATCH(
     const body = await request.json()
     const { status, notes } = body as { status?: string; notes?: string }
 
-    const data: { status?: string; notes?: string | null; lastActivity?: Date } =
-      {}
+    const updates: Record<string, unknown> = {}
     if (status !== undefined) {
-      data.status = status
-      data.lastActivity = new Date()
+      updates.status = status
+      updates.lastActivity = new Date().toISOString()
     }
-    if (notes !== undefined) data.notes = notes || null
+    if (notes !== undefined) updates.notes = notes || null
 
-    if (Object.keys(data).length === 0) {
+    if (Object.keys(updates).length === 0) {
       return NextResponse.json(
         { error: "status or notes is required" },
         { status: 400 }
       )
     }
 
-    await prisma.application.update({
-      where: { id },
-      data,
-    })
+    const { error } = await supabase
+      .from("Application")
+      .update(updates)
+      .eq("id", id)
+    if (error) throw error
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error("Update application error:", err)

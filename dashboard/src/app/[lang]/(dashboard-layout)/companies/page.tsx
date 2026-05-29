@@ -3,7 +3,7 @@ import { Building2 } from "lucide-react"
 
 import type { Metadata } from "next"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,26 +14,28 @@ export const metadata: Metadata = {
 }
 
 async function getCompanies() {
-  const companies = await prisma.company.findMany({
-    include: {
-      applications: {
-        select: { status: true, updatedAt: true, appliedDate: true },
-        orderBy: { updatedAt: "desc" },
-      },
-      _count: { select: { applications: true, contacts: true } },
-    },
-    orderBy: { name: "asc" },
-  })
+  const { data } = await supabase
+    .from("Company")
+    .select(
+      "id, name, applications:Application(status, updatedAt, appliedDate), contacts:CompanyContact(id)"
+    )
+    .order("name", { ascending: true })
 
-  return companies.map((c) => ({
-    id: c.id,
-    name: c.name,
-    applicationCount: c._count.applications,
-    contactCount: c._count.contacts,
-    latestStatus: c.applications[0]?.status ?? null,
-    lastActivity:
-      c.applications[0]?.updatedAt ?? c.applications[0]?.appliedDate ?? null,
-  }))
+  return (data ?? []).map((c) => {
+    const applications = [...(c.applications ?? [])].sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    )
+    return {
+      id: c.id,
+      name: c.name,
+      applicationCount: c.applications?.length ?? 0,
+      contactCount: c.contacts?.length ?? 0,
+      latestStatus: applications[0]?.status ?? null,
+      lastActivity:
+        applications[0]?.updatedAt ?? applications[0]?.appliedDate ?? null,
+    }
+  })
 }
 
 export default async function CompaniesPage() {

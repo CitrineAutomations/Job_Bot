@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 export async function POST(request: Request) {
   try {
@@ -27,7 +27,14 @@ export async function POST(request: Request) {
       }>
     }
 
-    const VALID_STATUSES = ["saved", "applied", "interview", "offer", "rejected", "done"]
+    const VALID_STATUSES = [
+      "saved",
+      "applied",
+      "interview",
+      "offer",
+      "rejected",
+      "done",
+    ]
     const resolvedStatus =
       status && VALID_STATUSES.includes(status) ? status : "applied"
 
@@ -38,50 +45,66 @@ export async function POST(request: Request) {
       )
     }
 
-    let companyRecord = await prisma.company.findFirst({
-      where: { name: company.trim() },
-    })
+    let { data: companyRecord, error: findErr } = await supabase
+      .from("Company")
+      .select("id")
+      .eq("name", company.trim())
+      .limit(1)
+      .maybeSingle()
+    if (findErr) throw findErr
 
     if (!companyRecord) {
-      companyRecord = await prisma.company.create({
-        data: { name: company.trim() },
-      })
+      const { data: created, error: createErr } = await supabase
+        .from("Company")
+        .insert({ name: company.trim() })
+        .select("id")
+        .single()
+      if (createErr) throw createErr
+      companyRecord = created
     }
 
-    const appliedDate = new Date()
-    const app = await prisma.application.create({
-      data: {
-        companyId: companyRecord.id,
+    const appliedDate = new Date().toISOString()
+    const { data: app, error: appErr } = await supabase
+      .from("Application")
+      .insert({
+        companyId: companyRecord!.id,
         role: role.trim(),
         status: resolvedStatus,
         source: source || null,
         jobPostSlug: job_post_slug || null,
         jobPostUrl: job_post_url || null,
         appliedDate,
-      },
-    })
-
-    for (const doc of documents) {
-      if (!doc.type || !doc.file_name || doc.content == null) continue
-      const validType =
-        doc.type === "resume" ||
-        doc.type === "cover_letter" ||
-        doc.type === "proposal"
-      if (!validType) continue
-
-      await prisma.applicationDocument.create({
-        data: {
-          applicationId: app.id,
-          docType: doc.type,
-          fileName: doc.file_name,
-          contentMd: doc.content,
-        },
       })
+      .select("id")
+      .single()
+    if (appErr) throw appErr
+
+    const docRows = documents
+      .filter((doc) => {
+        if (!doc.type || !doc.file_name || doc.content == null) return false
+        return (
+          doc.type === "resume" ||
+          doc.type === "cover_letter" ||
+          doc.type === "proposal"
+        )
+      })
+      .map((doc) => ({
+        applicationId: app.id,
+        docType: doc.type,
+        fileName: doc.file_name,
+        contentMd: doc.content,
+      }))
+
+    if (docRows.length > 0) {
+      const { error: docErr } = await supabase
+        .from("ApplicationDocument")
+        .insert(docRows)
+      if (docErr) throw docErr
     }
 
     return NextResponse.json({
       id: app.id,
-      company_id: companyRecord.id,
+      company_id: companyRecord!.id,
       message: "Application created",
     })
   } catch (err) {
@@ -95,23 +118,25 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const applications = await prisma.application.findMany({
-      include: { company: { select: { name: true } } },
-      orderBy: { appliedDate: "desc" },
-    })
-    const data = applications.map((a) => ({
+    const { data, error } = await supabase
+      .from("Application")
+      .select("*, company:Company(name)")
+      .order("appliedDate", { ascending: false })
+    if (error) throw error
+
+    const mapped = (data ?? []).map((a) => ({
       id: a.id,
       company_id: a.companyId,
       role: a.role,
       status: a.status,
       source: a.source,
       job_post_url: a.jobPostUrl,
-      applied_date: a.appliedDate?.toISOString() ?? null,
-      follow_up_date: a.followUpDate?.toISOString() ?? null,
+      applied_date: a.appliedDate ?? null,
+      follow_up_date: a.followUpDate ?? null,
       notes: a.notes,
-      companies: { name: a.company.name },
+      companies: { name: a.company?.name ?? "" },
     }))
-    return NextResponse.json(data)
+    return NextResponse.json(mapped)
   } catch (err) {
     console.error("List applications error:", err)
     return NextResponse.json(

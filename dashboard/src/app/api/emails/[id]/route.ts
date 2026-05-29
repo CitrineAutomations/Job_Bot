@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 export async function PATCH(
   request: Request,
@@ -18,10 +18,11 @@ export async function PATCH(
       )
     }
 
-    await prisma.email.update({
-      where: { id },
-      data: { isRead: is_read },
-    })
+    const { error } = await supabase
+      .from("Email")
+      .update({ isRead: is_read })
+      .eq("id", id)
+    if (error) throw error
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error("Update email error:", err)

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { getOAuth2Client } from "@/lib/gmail"
-import { prisma } from "@/lib/db"
+import { supabase } from "@/lib/supabase"
 
 const SETTINGS_ID = "00000000-0000-0000-0000-000000000001"
 
@@ -31,16 +31,10 @@ export async function GET(request: Request) {
       )
     }
 
-    await prisma.settings.upsert({
-      where: { id: SETTINGS_ID },
-      create: {
-        id: SETTINGS_ID,
-        gmailRefreshToken: refreshToken,
-      },
-      update: {
-        gmailRefreshToken: refreshToken,
-      },
-    })
+    const { error: upsertErr } = await supabase
+      .from("Settings")
+      .upsert({ id: SETTINGS_ID, gmailRefreshToken: refreshToken })
+    if (upsertErr) throw upsertErr
 
     return NextResponse.redirect(`${baseUrl}/en/inbox?gmail=connected`)
   } catch (err) {

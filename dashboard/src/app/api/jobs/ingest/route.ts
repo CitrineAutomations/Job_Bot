@@ -22,7 +22,12 @@ function inferSource(url: string): string {
   if (url.includes("linkedin.com")) return "linkedin"
   if (url.includes("indeed.com")) return "indeed"
   if (url.includes("upwork.com")) return "upwork"
-  if (url.includes("lever.co") || url.includes("greenhouse.io") || url.includes("workable.com")) return "direct"
+  if (
+    url.includes("lever.co") ||
+    url.includes("greenhouse.io") ||
+    url.includes("workable.com")
+  )
+    return "direct"
   return "other"
 }
 
@@ -57,7 +62,10 @@ export async function POST(request: Request) {
       pageText = htmlToText(html)
     } catch {
       return NextResponse.json(
-        { error: "Failed to fetch the job URL. Check if it is publicly accessible." },
+        {
+          error:
+            "Failed to fetch the job URL. Check if it is publicly accessible.",
+        },
         { status: 422 }
       )
     }
@@ -84,7 +92,8 @@ ${pageText}`
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+        "HTTP-Referer":
+          process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
       },
       body: JSON.stringify({
         model,
