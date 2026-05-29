@@ -39,19 +39,22 @@ async function getDashboardData() {
   ])
 
   const total = applications.length
+  const saved = applications.filter((a) => a.status === "saved").length
   const applied = applications.filter((a) => a.status === "applied").length
   const interview = applications.filter((a) => a.status === "interview").length
   const offer = applications.filter((a) => a.status === "offer").length
   const rejected = applications.filter((a) => a.status === "rejected").length
   const done = applications.filter((a) => a.status === "done").length
 
+  const submitted = total - saved
   const responded = interview + offer + rejected + done
-  const responseRate = total > 0 ? Math.round((responded / total) * 100) : 0
+  const responseRate = submitted > 0 ? Math.round((responded / submitted) * 100) : 0
 
   let avgDaysToResponse = 0
   const withResponse = applications.filter(
     (a) =>
       a.status !== "applied" &&
+      a.status !== "saved" &&
       a.appliedDate &&
       a.lastActivity &&
       a.lastActivity.getTime() !== a.appliedDate.getTime()
@@ -66,6 +69,7 @@ async function getDashboardData() {
   }
 
   const funnelSteps = [
+    { name: "Saved", value: saved },
     { name: "Applied", value: applied },
     { name: "Interview", value: interview },
     { name: "Offer", value: offer },

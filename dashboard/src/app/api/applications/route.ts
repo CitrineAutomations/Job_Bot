@@ -8,6 +8,7 @@ export async function POST(request: Request) {
     const {
       company,
       role,
+      status,
       source = "other",
       job_post_slug,
       job_post_url,
@@ -15,6 +16,7 @@ export async function POST(request: Request) {
     } = body as {
       company: string
       role: string
+      status?: string
       source?: string
       job_post_slug?: string
       job_post_url?: string
@@ -24,6 +26,10 @@ export async function POST(request: Request) {
         content: string
       }>
     }
+
+    const VALID_STATUSES = ["saved", "applied", "interview", "offer", "rejected", "done"]
+    const resolvedStatus =
+      status && VALID_STATUSES.includes(status) ? status : "applied"
 
     if (!company || !role) {
       return NextResponse.json(
@@ -47,7 +53,7 @@ export async function POST(request: Request) {
       data: {
         companyId: companyRecord.id,
         role: role.trim(),
-        status: "applied",
+        status: resolvedStatus,
         source: source || null,
         jobPostSlug: job_post_slug || null,
         jobPostUrl: job_post_url || null,

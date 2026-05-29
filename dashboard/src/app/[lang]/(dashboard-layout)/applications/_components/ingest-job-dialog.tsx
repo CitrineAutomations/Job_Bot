@@ -120,6 +120,7 @@ export function IngestJobDialog({ onSuccess }: IngestJobDialogProps) {
         body: JSON.stringify({
           company: values.company,
           role: values.role,
+          status: "saved",
           source: extracted.source,
           job_post_url: extracted.jobPostUrl,
           notes: [
