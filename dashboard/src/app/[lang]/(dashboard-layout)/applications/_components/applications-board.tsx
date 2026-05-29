@@ -7,6 +7,7 @@ import type { DropResult } from "@hello-pangea/dnd"
 
 import { ApplicationCard } from "./application-card"
 import { ApplicationColumn } from "./application-column"
+import { IngestJobDialog } from "./ingest-job-dialog"
 import { NewApplicationDialog } from "./new-application-dialog"
 
 const COLUMNS = [
@@ -90,7 +91,8 @@ export function ApplicationsBoard() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <IngestJobDialog onSuccess={fetchApplications} />
         <NewApplicationDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}

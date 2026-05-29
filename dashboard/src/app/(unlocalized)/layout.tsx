@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           latoFont.variable // Include Lato font variable
         )}
       >
-        <Providers locale="en" direction="ltr" session={null}>
+        <Providers locale="en" direction="ltr">
           {children}
           <Toaster />
           <Sonner />

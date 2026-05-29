@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     let companyRecord = await prisma.company.findFirst({
-      where: { name: { equals: company.trim(), mode: "insensitive" } },
+      where: { name: company.trim() },
     })
 
     if (!companyRecord) {

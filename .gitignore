@@ -1,6 +1,10 @@
 # Vault (contains personal data)
 Vault/
 
+# Env files (secrets)
+.env.local
+.env.*.local
+
 # Dashboard
 dashboard/node_modules/
 dashboard/.next/

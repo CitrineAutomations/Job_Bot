@@ -84,12 +84,29 @@ model VerificationToken {
 
 // Job Bot models
 model Company {
-  id            String        @id @default(uuid())
+  id            String           @id @default(uuid())
   name          String
   applications  Application[]
+  contacts      CompanyContact[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CompanyContact {
+  id          String   @id @default(uuid())
+  name        String
+  roleTitle   String?
+  linkedinUrl String?
+  email       String?
+  notes       String?
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
 }
 
 model Application {

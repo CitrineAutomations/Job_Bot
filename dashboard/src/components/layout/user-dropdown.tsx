@@ -1,6 +1,5 @@
 import Link from "next/link"
-import { signOut } from "next-auth/react"
-import { LogOut, User, UserCog } from "lucide-react"
+import { User, UserCog } from "lucide-react"
 
 import type { DictionaryType } from "@/lib/get-dictionary"
 import type { LocaleType } from "@/types"
@@ -55,7 +54,7 @@ export function UserDropdown({
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col overflow-hidden">
-            <p className="text-sm font-medium truncate">John Doe</p>
+            <p className="text-sm font-medium truncate">{userData?.name}</p>
             <p className="text-xs text-muted-foreground font-semibold truncate">
               {userData?.email}
             </p>
@@ -80,11 +79,6 @@ export function UserDropdown({
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut()}>
-          <LogOut className="me-2 size-4" />
-          {dictionary.navigation.userNav.signOut}
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

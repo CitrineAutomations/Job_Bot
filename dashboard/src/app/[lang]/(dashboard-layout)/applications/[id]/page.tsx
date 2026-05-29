@@ -8,6 +8,7 @@ import { prisma } from "@/lib/db"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { ContactsSection } from "@/components/contacts/contacts-section"
 import { ApplicationDetailClient } from "./_components/application-detail-client"
 
 export const metadata: Metadata = {
@@ -114,6 +115,12 @@ export default async function ApplicationDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardContent className="pt-6">
+          <ContactsSection companyId={application.companyId} />
+        </CardContent>
+      </Card>
     </div>
   )
 }
