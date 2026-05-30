@@ -28,7 +28,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -130,7 +129,12 @@ function TaskFormDialog({
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Follow up with recruiter" {...field} />
+                    <Textarea
+                      placeholder="Follow up with recruiter"
+                      className="min-h-0 resize-none"
+                      rows={1}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
