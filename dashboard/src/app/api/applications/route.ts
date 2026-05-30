@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       )
     }
 
-    let { data: companyRecord, error: findErr } = await supabase
+    const { data: companyRecord, error: findErr } = await supabase
       .from("Company")
       .select("id")
       .eq("name", company.trim())
