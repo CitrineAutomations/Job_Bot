@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const { data: companyRecord, error: findErr } = await supabase
+    const { data: existingCompany, error: findErr } = await supabase
       .from("Company")
       .select("id")
       .eq("name", company.trim())
@@ -53,21 +53,23 @@ export async function POST(request: Request) {
       .maybeSingle()
     if (findErr) throw findErr
 
-    if (!companyRecord) {
+    let companyId = existingCompany?.id
+
+    if (!companyId) {
       const { data: created, error: createErr } = await supabase
         .from("Company")
         .insert({ name: company.trim() })
         .select("id")
         .single()
       if (createErr) throw createErr
-      companyRecord = created
+      companyId = created!.id
     }
 
     const appliedDate = new Date().toISOString()
     const { data: app, error: appErr } = await supabase
       .from("Application")
       .insert({
-        companyId: companyRecord!.id,
+        companyId: companyId,
         role: role.trim(),
         status: resolvedStatus,
         source: source || null,
@@ -104,7 +106,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       id: app.id,
-      company_id: companyRecord!.id,
+      company_id: companyId,
       message: "Application created",
     })
   } catch (err) {
