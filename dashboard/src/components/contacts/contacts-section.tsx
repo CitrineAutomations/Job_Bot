@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Linkedin, Mail, Pencil, Trash2, UserPlus } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { Linkedin, Mail, Pencil, Trash2, UserPlus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -37,7 +37,11 @@ interface Contact {
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
   roleTitle: z.string().optional(),
-  linkedinUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  linkedinUrl: z
+    .string()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
   email: z.string().email("Must be a valid email").optional().or(z.literal("")),
   notes: z.string().optional(),
 })
@@ -234,11 +238,7 @@ export function ContactsSection({ companyId }: { companyId: string }) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-medium">Contacts</h2>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setAddOpen(true)}
-        >
+        <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
           <UserPlus className="mr-2 h-4 w-4" />
           Add Contact
         </Button>

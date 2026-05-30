@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Link2, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { Link2, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -152,7 +152,10 @@ export function IngestJobDialog({ onSuccess }: IngestJobDialogProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => (o ? setOpen(true) : handleClose())}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => (o ? setOpen(true) : handleClose())}
+    >
       <DialogTrigger asChild>
         <Button variant="outline">
           <Link2 className="mr-2 h-4 w-4" />
