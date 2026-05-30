@@ -1,4 +1,4 @@
-import { Lato } from "next/font/google"
+import { JetBrains_Mono } from "next/font/google"
 
 import { cn } from "@/lib/utils"
 
@@ -12,8 +12,6 @@ import type { ReactNode } from "react"
 import { Toaster as Sonner } from "@/components/ui/sonner"
 import { Toaster } from "@/components/ui/toaster"
 
-// Define metadata for the application
-// More info: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
 export const metadata: Metadata = {
   title: {
     template: "%s | Shadboard",
@@ -23,13 +21,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.BASE_URL || "http://localhost:3000"),
 }
 
-// Define fonts for the application
-// More info: https://nextjs.org/docs/app/building-your-application/optimizing/fonts
-const latoFont = Lato({
+const jetbrainsMonoFont = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["100", "300", "400", "700", "900"],
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
-  variable: "--font-lato",
+  variable: "--font-jetbrains-mono",
 })
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -37,9 +33,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "[&:lang(en)]:font-lato", // Set font styles based on the language
-          "bg-background text-foreground antialiased overscroll-none", // Set background, text, , anti-aliasing styles, and overscroll behavior
-          latoFont.variable // Include Lato font variable
+          "[&:lang(en)]:font-jetbrains-mono",
+          "bg-background text-foreground antialiased overscroll-none",
+          jetbrainsMonoFont.variable
         )}
       >
         <Providers locale="en" direction="ltr">

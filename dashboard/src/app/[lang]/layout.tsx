@@ -1,4 +1,4 @@
-import { Cairo, Lato } from "next/font/google"
+import { Cairo, JetBrains_Mono } from "next/font/google"
 
 import { i18n } from "@/configs/i18n"
 import { cn } from "@/lib/utils"
@@ -23,11 +23,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.BASE_URL || "http://localhost:3000"),
 }
 
-const latoFont = Lato({
+const jetbrainsMonoFont = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["100", "300", "400", "700", "900"],
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
-  variable: "--font-lato",
+  variable: "--font-jetbrains-mono",
 })
 const cairoFont = Cairo({
   subsets: ["arabic"],
@@ -48,9 +48,9 @@ export default async function RootLayout(props: {
     <html lang={params.lang} dir={direction} suppressHydrationWarning>
       <body
         className={cn(
-          "[&:lang(en)]:font-lato [&:lang(ar)]:font-cairo",
+          "[&:lang(en)]:font-jetbrains-mono [&:lang(ar)]:font-cairo",
           "bg-background text-foreground antialiased overscroll-none",
-          latoFont.variable,
+          jetbrainsMonoFont.variable,
           cairoFont.variable
         )}
       >

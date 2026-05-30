@@ -6,9 +6,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-lato:
-    var(--font-lato), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-jetbrains-mono:
+    var(--font-jetbrains-mono), ui-monospace, monospace;
   --font-cairo:
     var(--font-cairo), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -162,41 +161,41 @@
 }
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
+  --background: 156 20% 4.9%;
+  --foreground: 0 0% 98%;
+  --card: 136 24% 8.8%;
+  --card-foreground: 0 0% 98%;
+  --popover: 136 24% 8.8%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 83 100% 61.6%;
+  --primary-foreground: 0 0% 1%;
+  --secondary: 136 24% 8.8%;
+  --secondary-foreground: 83 100% 61.6%;
+  --muted: 143 26% 15.9%;
+  --muted-foreground: 163 10% 58.2%;
+  --accent: 143 26% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 100% 68%;
   --destructive-foreground: 0 0% 98%;
-  --success: 142.1 76.2% 36.3%;
+  --success: 142 71% 45%;
   --success-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 10% 3.9%;
-  --radius: 0.5rem;
-  --chart-1: 220 70% 50%;
-  --chart-2: 160 60% 45%;
-  --chart-3: 30 80% 55%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
-  --sidebar-background: var(--background);
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
+  --border: 143 26% 15.9%;
+  --input: 143 26% 15.9%;
+  --ring: 83 100% 61.6%;
+  --radius: 0.75rem;
+  --chart-1: 83 100% 61.6%;
+  --chart-2: 142 70% 57%;
+  --chart-3: 142 71% 45%;
+  --chart-4: 163 10% 58%;
+  --chart-5: 0 100% 68%;
+  --sidebar-background: 136 24% 8.8%;
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-primary: 83 100% 61.6%;
+  --sidebar-primary-foreground: 0 0% 1%;
+  --sidebar-accent: 143 26% 15.9%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 143 26% 15.9%;
+  --sidebar-ring: 83 100% 61.6%;
 
   /* Calendar vars */
   --fc-small-font-size: 0.875em;
@@ -228,33 +227,46 @@
   --fc-now-indicator-color: hsl(var(--destructive));
 }
 .dark {
-  --background: 240 10% 3.9%;
+  --background: 156 20% 4.9%;
   --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
+  --card: 136 24% 8.8%;
   --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
+  --popover: 136 24% 8.8%;
   --popover-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
+  --primary: 83 100% 61.6%;
+  --primary-foreground: 0 0% 1%;
+  --secondary: 136 24% 8.8%;
+  --secondary-foreground: 83 100% 61.6%;
+  --muted: 143 26% 15.9%;
+  --muted-foreground: 163 10% 58.2%;
+  --accent: 143 26% 15.9%;
   --accent-foreground: 0 0% 98%;
-  --destructive: 0 84.2% 35.2%;
+  --destructive: 0 100% 68%;
   --destructive-foreground: 0 0% 98%;
-  --success: 142.4 71.8% 29.2%;
+  --success: 142 71% 45%;
   --success-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 240 4.9% 83.9%;
-  --chart-1: 220 70% 50%;
-  --chart-2: 160 60% 45%;
-  --chart-3: 30 80% 55%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
+  --border: 143 26% 15.9%;
+  --input: 143 26% 15.9%;
+  --ring: 83 100% 61.6%;
+  --chart-1: 83 100% 61.6%;
+  --chart-2: 142 70% 57%;
+  --chart-3: 142 71% 45%;
+  --chart-4: 163 10% 58%;
+  --chart-5: 0 100% 68%;
 }
+
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(181, 255, 59, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(181, 255, 59, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1E3326; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #B5FF3B; }
+* { scrollbar-width: thin; scrollbar-color: #1E3326 transparent; }
 
 aside.EmojiPickerReact {
   /* Emoji Picker vars */
