@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       "done",
     ]
     const resolvedStatus =
-      status && VALID_STATUSES.includes(status) ? status : "applied"
+      status && VALID_STATUSES.includes(status) ? status : "saved"
 
     if (!company || !role) {
       return NextResponse.json(

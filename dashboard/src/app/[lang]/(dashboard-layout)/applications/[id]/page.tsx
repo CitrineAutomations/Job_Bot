@@ -5,10 +5,10 @@ import type { Metadata } from "next"
 
 import { supabase } from "@/lib/supabase"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ApplicationDetailClient } from "./_components/application-detail-client"
+import { ApplicationStatusSelect } from "./_components/application-status-select"
 import { DeleteApplicationButton } from "./_components/delete-application-button"
 import { ContactsSection } from "@/components/contacts/contacts-section"
 import { TasksSection } from "@/components/tasks/tasks-section"
@@ -67,7 +67,10 @@ export default async function ApplicationDetailPage({
           <CardHeader>
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-medium">Details</h2>
-              <Badge variant="secondary">{application.status}</Badge>
+              <ApplicationStatusSelect
+                applicationId={application.id}
+                initialStatus={application.status}
+              />
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
