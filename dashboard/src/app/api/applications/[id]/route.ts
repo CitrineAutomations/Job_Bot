@@ -33,6 +33,17 @@ export async function PATCH(
     if (status !== undefined) {
       updates.status = status
       updates.lastActivity = new Date().toISOString()
+      // Stamp the applied date the first time an application reaches "applied".
+      if (status === "applied") {
+        const { data: current } = await supabase
+          .from("Application")
+          .select("appliedDate")
+          .eq("id", id)
+          .maybeSingle()
+        if (current && !current.appliedDate) {
+          updates.appliedDate = new Date().toISOString()
+        }
+      }
     }
     if (notes !== undefined) updates.notes = notes || null
 

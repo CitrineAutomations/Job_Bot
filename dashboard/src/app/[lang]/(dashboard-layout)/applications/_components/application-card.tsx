@@ -15,9 +15,10 @@ interface ApplicationCardProps {
 
 export function ApplicationCard({ application, index }: ApplicationCardProps) {
   const companyName = application.companies?.name ?? "Unknown"
-  const appliedDate = application.applied_date
-    ? new Date(application.applied_date).toLocaleDateString()
-    : null
+  const appliedDate =
+    application.status !== "saved" && application.applied_date
+      ? new Date(application.applied_date).toLocaleDateString()
+      : null
 
   return (
     <Draggable draggableId={application.id} index={index}>

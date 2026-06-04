@@ -65,7 +65,8 @@ export async function POST(request: Request) {
       companyId = created!.id
     }
 
-    const appliedDate = new Date().toISOString()
+    const appliedDate =
+      resolvedStatus === "applied" ? new Date().toISOString() : null
     const { data: app, error: appErr } = await supabase
       .from("Application")
       .insert({
