@@ -24,7 +24,7 @@ export function RecentActivity({ activities }: RecentActivityProps) {
           No applications yet. Add one from the Applications board.
         </p>
       ) : (
-        <ul className="divide-y">
+        <ul className="min-h-0 flex-1 divide-y overflow-y-auto">
           {activities.map((activity) => (
             <li key={activity.id}>
               <Link
